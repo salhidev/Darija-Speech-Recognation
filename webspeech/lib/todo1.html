@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="eng" ng-app="ToDO">
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<title>To DO</title>
+	<style>
+	.done{text-decoration:line-through;color:#ccc;}
+	</style>
+</head>
+<body>
+
+	<div ng-controller="todocontroller">
+		<form name="frm" ng-submit="addtodo()">
+			<input type="text" name="newtodo" ng-model="newtodo" required/>
+			<button ng-disabled="frm.$invalid">go</button>
+		</form>
+		<button ng-click="clearcompleted()">clear </button>
+			<ul>
+				<li ng-repeat="todo in todos">
+					<input type="checkbox" ng-model="todo.done"/>{{$index+1}}
+					<span ng-class="{'done':todo.done}">{{todo.title}}</span>
+				</li>
+			</ul>
+	</div>
+	
+	
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/annyang/2.0.0/annyang.js"></script>
+<script>
+angular.module('ToDO',[]).
+controller('todocontroller',['$scope',function($scope){
+	$scope.todos = [
+	{'title':'أول ستعمال','done':false}
+	];
+$scope.addtodo = function(){
+	$scope.todos.push({'title':$scope.newtodo,'done':false})
+	}
+	
+$scope.clearcompleted = function(){
+	$scope.todos = $scope.todos.filter(function(item){
+	return !item.done })}
+	
+$scope.$watch('todos',function(newvalue,oldvalue){
+	if(newvalue != oldvalue){
+	localStorage.setItem('todos',JSON.stringify(newvalue))
+	}},true)
+
+	var commands ={
+		'مرحبا *val' : function(val){
+			$scope.newtodo = val;
+			$scope.addtodo();
+			$scope.$apply();
+				},
+				
+		'check number *val' : function(val){
+		$scope.todos[parseInt(val)-1].done=true;
+		$scope.$apply();},
+		'إمسح إختيار' : function(val){
+		$scope.clearcompleted();
+		$scope.$apply();}}
+		
+		annyang.addCommands(commands);
+	annyang.debug();
+	annyang.setLanguage('ar-MA');
+	
+	annyang.start();
+}])
+</script>
+
+
+</body>
+</html>
